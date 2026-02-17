@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Valentine's Gift 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  overflow-x: hidden;
+  background: linear-gradient(135deg, #ff758c, #ff7eb3);
+  color: white;
+  text-align: center;
+  transition: background 0.5s;
+}
+
+/* ===== WELCOME SCREEN ===== */
+#welcomeScreen {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+#welcomeScreen h1 {
+  font-size: 3rem;
+}
+
+.start-btn {
+  margin-top: 20px;
+  padding: 14px 30px;
+  border-radius: 25px;
+  border: none;
+  background: white;
+  color: #ff5f9e;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.start-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Floating hearts */
+.heart {
+  position: absolute;
+  bottom: -20px;
+  font-size: 24px;
+  animation: floatUp 6s linear infinite;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0); opacity: 0.7; }
+  100% { transform: translateY(-110vh); opacity: 0; }
+}
+
+.hidden { display: none; }
+
+.container {
+  width: 95%;
+  max-width: 1400px;
+  margin: auto;
+  padding: 40px 20px;
+}
+
+button {
+  margin: 8px;
+  padding: 12px 22px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  background: white;
+  color: #ff5f9e;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.photo-booth {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+.photo-card {
+  background: rgba(255,255,255,0.15);
+  padding: 15px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+}
+
+.photo-card img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+.photo-date {
+  margin-top: 10px;
+  font-size: 0.95rem;
+}
+
+.slideshow-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.slideshow-overlay img {
+  max-width: 90%;
+  max-height: 80%;
+  border-radius: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🎵 Background Music -->
+<audio id="bgMusic" loop>
+  <source src="music/love.mp3" type="audio/mpeg">
+</audio>
+
+<div id="welcomeScreen">
+  <h1>💖 Welcome to Your Valentine’s Gift 💖</h1>
+  <button class="start-btn" onclick="enterSite()">Start</button>
+</div>
+
+<div id="mainSite" class="hidden">
+
+  <div id="homeView" class="container">
+    <h1>💖 Our Memories 💖</h1>
+    <button onclick="openYear('2022')">2022</button>
+    <button onclick="openYear('2023')">2023</button>
+    <button onclick="openYear('2025')">2025</button>
+    <button onclick="openYear('2026')">2026</button>
+  </div>
+
+  <div id="yearView" class="container hidden">
+    <button onclick="goHome()">⬅ Back</button>
+    <button onclick="startSlideshow()">▶ Start Slideshow</button>
+
+    <h2 id="yearTitle"></h2>
+    <div class="photo-booth" id="photoBooth"></div>
+  </div>
+
+</div>
+
+<div class="slideshow-overlay" id="slideshowOverlay">
+  <img id="slideImage" src="">
+  <button onclick="stopSlideshow()">Close</button>
+</div>
+
+<script>
+function enterSite() {
+  document.getElementById("welcomeScreen").style.display = "none";
+  document.getElementById("mainSite").classList.remove("hidden");
+
+  const music = document.getElementById("bgMusic");
+  music.play().catch(() => {});
+}
+
+/* 💕 Floating hearts generator */
+function createHearts() {
+  const welcome = document.getElementById("welcomeScreen");
+
+  setInterval(() => {
+    const heart = document.createElement("div");
+    heart.classList.add("heart");
+    heart.innerText = "💖";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.fontSize = (18 + Math.random() * 20) + "px";
+    heart.style.animationDuration = (4 + Math.random() * 4) + "s";
+
+    welcome.appendChild(heart);
+
+    setTimeout(() => heart.remove(), 6000);
+  }, 300);
+}
+
+createHearts();
+
+let allImages = [];
+let slideshowInterval;
+
+const imagesByYear = {
+  "2022": [
+    { src: "images/2022/1.png", date: "Memory 1 - 2022" },
+    { src: "images/2022/2.png", date: "Memory 2 - 2022" },
+    { src: "images/2022/3.png", date: "Memory 3 - 2022" },
+    { src: "images/2022/4.png", date: "Memory 4 - 2022" },
+    { src: "images/2022/5.png", date: "Memory 5 - 2022" },
+    { src: "images/2022/6.png", date: "Memory 6 - 2022" },
+    { src: "images/2022/7.png", date: "Memory 7 - 2022" },
+    { src: "images/2022/8.png", date: "Memory 8 - 2022" },
+    { src: "images/2022/9.png", date: "Memory 9 - 2022" },
+    { src: "images/2022/10.png", date: "Memory 10 - 2022" },
+    { src: "images/2022/11.png", date: "Memory 11 - 2022" },
+    { src: "images/2022/12.jpg", date: "Memory 12 - 2022" },
+    { src: "images/2022/13.jpg", date: "Memory 13 - 2022" }
+  ],
+  "2023": [
+    { src: "images/2023/14.png", date: "Memory 14 - 2023" },
+    { src: "images/2023/15.png", date: "Memory 15 - 2023" },
+    { src: "images/2023/16.png", date: "Memory 16 - 2023" },
+    { src: "images/2023/17.jpg", date: "Memory 17 - 2023" },
+    { src: "images/2023/18.jpg", date: "Memory 18 - 2023" },
+    { src: "images/2023/19.jpg", date: "Memory 19 - 2023" },
+    { src: "images/2023/20.jpg", date: "Memory 20 - 2023" },
+    { src: "images/2023/21.jpg", date: "Memory 21 - 2023" },
+    { src: "images/2023/22.jpg", date: "Memory 22 - 2023" },
+    { src: "images/2023/23.jpg", date: "Memory 23 - 2023" }
+  ],
+  "2025": [
+    { src: "images/2025/24.png", date: "Memory 24 - 2025" },
+    { src: "images/2025/25.png", date: "Memory 25 - 2025" },
+    { src: "images/2025/IMG_3625.png", date: "Memory IMG_3625 - 2025" },
+    { src: "images/2025/IMG_3626.png", date: "Memory IMG_3626 - 2025" },
+    { src: "images/2025/IMG_3627.png", date: "Memory IMG_3627 - 2025" },
+    { src: "images/2025/IMG_3695.jpg", date: "Memory IMG_3695 - 2025" },
+    { src: "images/2025/IMG_3696.jpg", date: "Memory IMG_3696 - 2025" },
+    { src: "images/2025/IMG_3697.jpg", date: "Memory IMG_3697 - 2025" },
+    { src: "images/2025/IMG_3698.jpg", date: "Memory IMG_3698 - 2025" },
+    { src: "images/2025/IMG_3700.jpg", date: "Memory IMG_3700 - 2025" },
+    { src: "images/2025/IMG_3701.jpg", date: "Memory IMG_3701 - 2025" },
+    { src: "images/2025/IMG_3702.jpg", date: "Memory IMG_3702 - 2025" },
+    { src: "images/2025/IMG_3703.jpg", date: "Memory IMG_3703 - 2025" },
+    { src: "images/2025/IMG_3704.jpg", date: "Memory IMG_3704 - 2025" }
+  ],
+  "2026": [
+    { src: "images/2026/20261.jpg", date: "Memory 20261 - 2026" }
+  ]
+};
+
+function openYear(year) {
+  document.getElementById("homeView").classList.add("hidden");
+  document.getElementById("yearView").classList.remove("hidden");
+  document.getElementById("yearTitle").innerText = "💖 " + year + " Memories 💖";
+
+  const photoBooth = document.getElementById("photoBooth");
+  photoBooth.innerHTML = "";
+  allImages = [];
+
+  const selectedImages = imagesByYear[year] || [];
+
+  selectedImages.forEach(photo => {
+    allImages.push(photo.src);
+
+    const card = document.createElement("div");
+    card.classList.add("photo-card");
+
+    const img = document.createElement("img");
+    img.src = photo.src;
+
+    const date = document.createElement("div");
+    date.classList.add("photo-date");
+    date.innerText = photo.date;
+
+    card.appendChild(img);
+    card.appendChild(date);
+    photoBooth.appendChild(card);
+  });
+
+  if (selectedImages.length === 0) {
+    photoBooth.innerHTML = "<p>No memories yet 💔</p>";
+  }
+}
+
+function goHome() {
+  stopSlideshow();
+  document.getElementById("yearView").classList.add("hidden");
+  document.getElementById("homeView").classList.remove("hidden");
+}
+
+function startSlideshow() {
+  if (allImages.length === 0) return;
+
+  const overlay = document.getElementById("slideshowOverlay");
+  const slideImage = document.getElementById("slideImage");
+
+  overlay.style.display = "flex";
+
+  let index = 0;
+  slideImage.src = allImages[index];
+
+  slideshowInterval = setInterval(() => {
+    index = (index + 1) % allImages.length;
+    slideImage.src = allImages[index];
+  }, 2500);
+}
+
+function stopSlideshow() {
+  clearInterval(slideshowInterval);
+  document.getElementById("slideshowOverlay").style.display = "none";
+}
+</script>
+
+</body>
+</html>
